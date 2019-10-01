@@ -1,270 +1,312 @@
 /* Styles for this account - affects all courses in this account */
-#user-course-progress-bar .card {
-  position: relative;
-  display: flex;
-  border-radius: 0;
-  margin: 5px;
-  transition: background 0.1s ease-in-out;
-  flex-direction: column;
-  word-wrap: break-word;
-  background-color: #f7f7f7;
-  background-clip: border-box;
-  border: 2px solid #ddd; }
-  #user-course-progress-bar .card > hr {
-    margin-right: 0;
-    margin-left: 0; }
+#content .user_content .course-progress-container {
+    width: 100%;
+    display: -ms-flexbox;
+    display: -webkit-box;
+    display: flex;
+    -ms-flex-direction: row;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-box-pack: start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    -ms-flex-align: start;
+    -webkit-box-align: start;
+    align-items: flex-start
+}
 
-#user-course-progress-bar .card:hover {
-  background-color: #e9ecef; }
+#content .user_content .course-progress-container .course-module-btn {
+    margin: 5px;
+    padding: 0;
+    border: none;
+    background-color: transparent
+}
 
-#user-course-progress-bar .card-title {
-  margin-bottom: 0.75rem; }
+#content .user_content .course-progress-container .course-progress-module-container {
+    height: 150px;
+    width: 180px;
+    border: 1px solid #C7CDD1;
+    text-align: center;
+    background-color: #ffffff;
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between
+}
 
-#user-course-progress-bar h4.card-title {
-  font-size: 0.89rem;
-  text-align: center; }
+#content .user_content .course-progress-container .course-progress-module-container span {
+    font-size: 16px;
+    display: block
+}
 
-#user-course-progress-bar .card-group {
-  display: flex;
-  flex-direction: column; }
-  #user-course-progress-bar .card-group .card {
-    margin-bottom: 0.3rem; }
-  @media (min-width: 576px) {
-    #user-course-progress-bar .card-group {
-      flex-flow: row wrap; }
-      #user-course-progress-bar .card-group .card {
-        flex: 1 0 0%; }
-        #user-course-progress-bar .card-group .card + .card {
-          margin-left: 0;
-          border-left: 0; }
-        #user-course-progress-bar .card-group .card:first-child {
-          border-top-right-radius: 0;
-          border-bottom-right-radius: 0; }
-          #user-course-progress-bar .card-group .card:first-child .card-img-top {
-            border-top-right-radius: 0; }
-          #user-course-progress-bar .card-group .card:first-child .card-img-bottom {
-            border-bottom-right-radius: 0; }
-        #user-course-progress-bar .card-group .card:last-child {
-          border-top-left-radius: 0;
-          border-bottom-left-radius: 0; }
-          #user-course-progress-bar .card-group .card:last-child .card-img-top {
-            border-top-left-radius: 0; }
-          #user-course-progress-bar .card-group .card:last-child .card-img-bottom {
-            border-bottom-left-radius: 0; }
-        #user-course-progress-bar .card-group .card:only-child .card-img-top {
-          border-top-left-radius: 0.25rem;
-          border-top-right-radius: 0.25rem; }
-        #user-course-progress-bar .card-group .card:only-child .card-img-bottom {
-          border-bottom-right-radius: 0.25rem;
-          border-bottom-left-radius: 0.25rem; }
-        #user-course-progress-bar .card-group .card:not(:first-child):not(:last-child):not(:only-child) {
-          border-radius: 0; }
-          #user-course-progress-bar .card-group .card:not(:first-child):not(:last-child):not(:only-child) .card-img-top,
-          #user-course-progress-bar .card-group .card:not(:first-child):not(:last-child):not(:only-child) .card-img-bottom {
-            border-radius: 0; } }
+#content .user_content .course-progress-container .course-progress-module-container:after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    -webkit-transition: opacity 0.15s ease-in-out;
+    transition: opacity 0.15s ease-in-out;
+    border: 2px solid #666666;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box
+}
 
-#user-course-progress-bar .course-progress-container.card-group {
-  list-style-type: none;
-  margin-left: 1.5rem; }
+#content .user_content .course-progress-container .course-progress-module-container:hover {
+    border-color: #666666
+}
 
-#user-course-progress-bar .card.course-progress-module-container {
-  width: 10rem;
-  padding: 0.35rem 0.5rem;
-  margin: 10px;
-  height: 7rem; }
+#content .user_content .course-progress-container .course-progress-module-container:hover:after {
+    opacity: 1
+}
 
-#user-course-progress-bar .course-progress-module-title-wrapper {
-  height: 100%;
-  padding: 0px 15px; }
+#content .user_content .course-progress-container .course-progress-module-title-wrapper {
+    padding: 10px 10px 0 10px;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    margin-top: auto
+}
 
-#user-course-progress-bar .course-progress-module-title-wrapper a {
+#content .user_content .course-progress-container .course-progress-module-title-wrapper i {
+    margin-top: 8px
+}
+
+#content .user_content .course-progress-container .course-progress-module-container.course-progress-module-locked .course-progress-module-title-wrapper {
+    opacity: 0.5
+}
+
+#content .user_content .course-progress-container .module-progress-status-wrapper {
+    height: 10px;
+    width: 100%;
+    background: #e3e3e3;
+    position: relative;
+    margin-top: auto
+}
+
+#content .user_content .course-progress-container .module-progress-status {
+    height: 100%;
+    width: 0;
+    max-width: 100%;
+    background: #aad75f;
+    position: absolute;
+    left: 0;
+    top: 0;
+    -webkit-transition: width 0.3s ease-in-out;
+    transition: width 0.3s ease-in-out
+}
+
+#content .user_content .module-item-container {
+    margin: 10px 5px
+}
+
+#content .user_content .module-item-container i {
+    width: auto;
+    height: auto
+}
+
+#content .user_content .module-item-container a {
+    color: #333333
+}
+
+#content .user_content .module-item-container .specific-module-box {
+    width: 100%;
+    left: 0;
+    top: 0;
+    background-color: #f3f3f3;
+    padding: 20px;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    border: 1px solid #C7CDD1;
+    -webkit-transition: opacity 0.2s ease-in-out;
+    transition: opacity 0.2s ease-in-out;
+    display: none
+}
+
+#content .user_content .module-item-container .specific-module-box.active {
+    display: block
+}
+
+#content .user_content .module-item-container .specific-module-details a {
+    text-decoration: none;
+    display: inline-block;
+    vertical-align: bottom
+}
+
+#content .user_content .module-item-container .specific-module-details a:hover {
+    text-decoration: underline;
+    color: #757575
+}
+
+#content .user_content .module-item-container .specific-module-details {
+    width: 100%;
+    position: relative
+}
+
+#content .user_content .module-item-container .specific-module-details .module-container {
+    width: 100%;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex
+}
+
+#content .user_content .module-item-container .specific-module-details .module-container .module-details {
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    padding-left: 5px
+}
+
+#content .user_content .module-item-container .specific-module-details .module-container .module-status-wrapper {
+    text-align: center;
+    -ms-flex-item-align: start;
+    align-self: flex-start
+}
+
+#content .user_content .module-item-container .specific-module-details .module-container .module-status-wrapper .module-progress-percentage {
+    margin: 0;
+    color: #333333;
+    display: inline;
+    vertical-align: middle
+}
+
+#content .user_content .module-item-container .specific-module-details .module-container .module-status-wrapper .module-progress-icon i::before {
+    font-size: 25px
+}
+
+#content .user_content .module-item-container .specific-module-details .module-container .module-status-wrapper .module-status {
+    margin: 0;
+    display: inline;
+    vertical-align: bottom;
+    padding-left: 10px;
+    padding-right: 5px
+}
+
+#content .user_content .module-item-container .specific-module-details .item-container.item-locked {
+    opacity: 0.4
+}
+
+#content .user_content .module-item-container .specific-module-details .item-container {
+    width: 100%;
+    margin-top: 15px
+}
+
+#content .user_content .module-item-container .specific-module-details .item-container .specific-item-details:first-child {
+    border-top: 1px solid #C7CDD1
+}
+
+#content .user_content .module-item-container .specific-module-details .item-container .specific-item-details {
+    width: 100%;
+    padding: 15px;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    background: #fff;
+    border-bottom: 1px solid #C7CDD1;
+    border-left: 1px solid #C7CDD1;
+    border-right: 1px solid #C7CDD1;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-transition: background 0.1s ease-in-out;
+    transition: background 0.1s ease-in-out
+}
+
+#content .user_content .module-item-container .specific-module-details .item-container .specific-item-details .specific-item-name {
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    margin-left: 15px;
+    line-height: 2rem;
+    -ms-flex-item-align: center;
+    align-self: center
+}
+
+#content .user_content .module-item-container .specific-module-details .item-container .specific-item-details .specific-item-type-icon {
+    width: 2rem;
+    height: 2rem;
+    background-color: #595959;
+    text-align: center;
+    border-radius: 100%
+}
+
+#content .user_content .module-item-container .specific-module-details .item-container .specific-item-details .specific-item-type-icon i {
+    line-height: 1;
+    vertical-align: bottom;
+    color: #fff
+}
+
+#content .user_content .module-item-container .specific-module-details .item-container .specific-item-details .specific-item-type-icon i::before {
+    font-size: 18px
+}
+
+#content .user_content .module-item-container .specific-module-details .item-container .specific-item-details .specific-item-type-icon.item-completed {
+    background-color: #00AC18
+}
+
+#content .user_content .module-item-container .specific-module-details .item-container .specific-item-details .specific-item-status-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    text-align: center
+}
+
+#content .user_content .module-item-container .specific-module-details .item-container .specific-item-details .specific-item-status-icon i {
+    color: #c7cdd1;
+    vertical-align: middle;
+    line-height: 22px
+}
+
+#content .user_content .module-item-container .specific-module-details .item-container .specific-item-details .specific-item-status-icon i.completed {
+    color: #00AC18
+}
+
+#content .user_content .module-item-container .specific-module-details .item-container .specific-item-details .specific-item-status-icon i::before {
+    font-size: 20px
+}
+
+#content .user_content .module-item-container .specific-module-details .item-container .specific-item-details:hover {
+    background: #eef7ff
+}
+
+#content .user_content .module-item-container .specific-module-name a {
+    font-size: 22px
+}
+
+#content .user_content .module-item-container .specific-module-name {
+    margin: 0
+}
+
+#content .user_content .module-item-container .specific-module-prerequisite {
+    margin: 5px 0
+}
+
+#content .user_content .module-item-container .module-prerequisite-list li.locked {
+    opacity: 0.5
+}
+
+.screenreader-visuallyhidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
   position: absolute;
-  bottom: 25px;
-  font-size: 0.8rem;
-  padding: 8px;
-  font-weight: 600;
-  background-color: #ffffff; }
-  #user-course-progress-bar .course-progress-module-title-wrapper a i[class*=icon-]:before, #user-course-progress-bar .course-progress-module-title-wrapper a i[class^=icon-]:before, #user-course-progress-bar .course-progress-module-title-wrapper a a[class*=icon-]:before, #user-course-progress-bar .course-progress-module-title-wrapper a a[class^=icon-]:before {
-    font-size: 0.8rem; }
-
-#user-course-progress-bar .course-progress-module-complete {
-  background-color: #DDF7E9; }
-
-#user-course-progress-bar .course-progress-module-open.active {
-  background: #e9ecef; }
-
-#user-course-progress-bar .course-progress-module-open.active .btn, #user-course-progress-bar .course-progress-module-complete.active .btn {
-  background-color: #e60028;
-  color: #ffffff; }
-
-#user-course-progress-bar .module-progress-status {
-  height: 10px;
-  min-width: 0;
-  max-width: 100%;
-  background: #20c997;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  -webkit-transition: width 0.3s ease-in-out;
-  transition: width 0.3s ease-in-out; }
-
-#user-course-progress-bar .module-item-container {
-  width: 100%;
-  position: relative;
-  margin-top: 15px; }
-
-#user-course-progress-bar .module-item-container a {
-  color: #000054; }
-
-#user-course-progress-bar .module-item-container .specific-module-box {
-  width: 100%;
-  left: 0;
-  top: 0;
-  padding: 20px;
-  box-sizing: border-box;
-  border: 1px solid #000054;
-  transition: opacity 0.2s ease-in-out;
-  display: none; }
-
-#user-course-progress-bar .module-item-container .specific-module-box.active {
-  display: block; }
-
-#user-course-progress-bar .module-item-container .specific-module-details a {
-  text-decoration: none; }
-
-#user-course-progress-bar .module-item-container .specific-module-details a:hover, #user-course-progress-bar .module-item-container .specific-module-details a:focus {
-  color: #e9ecef; }
-
-#user-course-progress-bar .module-item-container .specific-module-details {
-  width: 100%;
-  position: relative; }
-
-#user-course-progress-bar .module-item-container .specific-module-details .module-container {
-  width: 100%;
-  display: flex; }
-
-#user-course-progress-bar .module-item-container .specific-module-details .module-container .module-details {
-  flex: 1;
-  padding-left: 5px; }
-
-#user-course-progress-bar .module-item-container .specific-module-details .module-container .module-status {
-  text-align: center;
-  align-self: flex-start; }
-
-#user-course-progress-bar .module-item-container .specific-module-details .module-container .module-status .module-progress-percentage {
-  color: #333333;
-  display: inline;
-  vertical-align: middle; }
-
-#user-course-progress-bar .module-item-container .specific-module-details .module-container .module-status .module-progress-icon i::before {
-  font-size: 25px; }
-
-#user-course-progress-bar .module-item-container .specific-module-details .module-container .module-status .module-status {
-  display: inline;
-  vertical-align: middle;
-  padding-left: 10px;
-  padding-right: 5px; }
-
-#user-course-progress-bar .module-item-container .specific-module-details .item-container.item-locked {
-  opacity: 0.4; }
-
-#user-course-progress-bar .module-item-container .specific-module-details ul.item-container {
-  width: 100%;
-  margin-top: 15px; }
-
-#user-course-progress-bar .module-item-container .specific-module-details ul.item-container {
-  list-style-type: none;
-  margin: 0px;
-  padding: 0px; }
-
-#user-course-progress-bar .module-item-container .specific-module-details ul.item-container li {
-  margin: 0px;
-  padding: 0px; }
-
-#user-course-progress-bar .module-item-container .specific-module-details ul.item-container li.specific-item-details:first-child {
-  border-top: 1px solid #ced4da; }
-
-#user-course-progress-bar .module-item-container .specific-module-details ul.item-container li.specific-item-details {
-  width: 100%;
-  height: 46px;
-  box-sizing: border-box;
-  background: #fff;
-  border-bottom: 1px solid #ced4da;
-  border-left: 1px solid #ced4da;
-  border-right: 1px solid #ced4da;
-  display: flex;
-  transition: background 0.1s ease-in-out; }
-
-#user-course-progress-bar .module-item-container .specific-module-details ul.item-container li.specific-item-details:last-child {
-  display: none; }
-
-#user-course-progress-bar .module-item-container .specific-module-box:nth-last-child(2) .specific-module-details ul.item-container li.specific-item-details:last-child {
-  display: flex; }
-
-#user-course-progress-bar .module-item-container .specific-module-box:nth-last-child(2) .specific-module-details ul.item-container li.specific-item-details:nth-child(2n+3) {
-  display: none; }
-
-#user-course-progress-bar .module-item-container .specific-module-details ul.item-container li.specific-item-details a {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  transition: 200ms; }
-
-#user-course-progress-bar .module-item-container .specific-module-details ul.item-container li.specific-item-details a:hover, #user-course-progress-bar .module-item-container .specific-module-details ul.item-container li.specific-item-details a:focus {
-  background-color: #e9ecef;
-  color: #000054; }
-
-#user-course-progress-bar .module-item-container .specific-module-details ul.item-container li.specific-item-details a .specific-item-name, #user-course-progress-bar .module-item-container .specific-module-details ul.item-container li.specific-item-details .specific-item-name {
-  flex: 1;
-  margin-left: 15px;
-  line-height: 1rem;
-  align-self: center;
-  font-size: 0.9rem; }
-
-#user-course-progress-bar .module-item-container .specific-module-details .item-container li.specific-item-details a .specific-item-type-icon, #user-course-progress-bar .module-item-container .specific-module-details .item-container li.specific-item-details .specific-item-type-icon {
-  margin: 6px 0px 0px 10px;
-  width: 2rem;
-  height: 2rem;
-  background-color: #495057;
-  text-align: center;
-  border-radius: 50%; }
-
-#user-course-progress-bar .module-item-container .specific-module-details .item-container li.specific-item-details a .specific-item-type-icon i, #user-course-progress-bar .module-item-container .specific-module-details .item-container li.specific-item-details .specific-item-type-icon i {
-  line-height: 1;
-  vertical-align: bottom;
-  color: #fff; }
-
-#user-course-progress-bar .module-item-container .specific-module-details .item-container li.specific-item-details a .specific-item-type-icon i::before, #user-course-progress-bar .module-item-container .specific-module-details .item-container li.specific-item-details .specific-item-type-icon i::before {
-  padding-top: 7px;
-  font-size: 18px; }
-
-#user-course-progress-bar .module-item-container .specific-module-details .item-container li.specific-item-details a .specific-item-type-icon.item-completed {
-  background-color: #20c997;
-  border-radius: 50%; }
-
-#user-course-progress-bar .module-item-container .specific-module-details .item-container li.specific-item-details a .specific-item-status-icon, #user-course-progress-bar .module-item-container .specific-module-details .item-container li.specific-item-details .specific-item-status-icon {
-  width: 1.5rem;
-  height: 1.5rem;
-  text-align: center; }
-
-#user-course-progress-bar .module-item-container .specific-module-details .item-container li.specific-item-details a .specific-item-status-icon i, #user-course-progress-bar .module-item-container .specific-module-details .item-container li.specific-item-details .specific-item-status-icon i {
-  margin: 15px 15px 0px 0px;
-  color: #ced4da; }
-
-#user-course-progress-bar .module-item-container .specific-module-details .item-container li.specific-item-details a .specific-item-status-icon i.completed {
-  color: #000054; }
-
-#user-course-progress-bar .module-item-container .specific-module-details .item-container li.specific-item-details a:hover {
-  text-decoration: underline; }
-
-#user-course-progress-bar .module-item-container .specific-module-name {
-  margin: 0; }
-
-#user-course-progress-bar .module-item-container .specific-module-prerequisite {
-  margin: 5px 0; }
-
-#user-course-progress-bar .module-item-container .module-prerequisite-list li.locked {
-  opacity: 0.5; }
+  width: 1px;
+  -webkit-transform: translatez(0);
+  transform: translatez(0)
+}
 
 #learning-summary table {
   width: 100%;
