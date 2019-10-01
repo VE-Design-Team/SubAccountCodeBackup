@@ -2544,3 +2544,658 @@ else if (window.location.pathname.match(/(syllabus)\/?$/gi)) {
         initEmble();
     });
 }
+/*
+**  Course Progress Bar 
+**
+**  Purpose/Description: 
+**      Shows the student's current progress in a course. This feature also display 
+**      the student's progress in a module, items in a module, state of each item 
+**      (completed/uncompleted), prerequisite if any and allows the student to jump
+**      to a module or item
+**
+**  Reference(s):
+**      course-progress-bar.scss - course progress bar style
+**
+**  License: (MIT License? Apache License 2.0? GNU Affero General Public License v3.0?)
+**      TBC (Refer to the license.md)
+**  
+**  Author(s):
+**      Edwin Ang Ding Hou, 21CC Project, RMIT Univeristy
+**  
+**  Contributor(s):
+**      Nadia Joyce, R21CC Project - UI/UX design of course progress bar
+**
+*/
+
+$(document).ready(function() {
+    if ($('#user-course-progress-bar.module-number-only').length){
+        // get url path
+        var urlPath = window.location.pathname.split('/');
+        var courseID, moduleNo,moduleObj, isStudent;
+        
+        // get course id from url path 
+        for (var i=0;i<urlPath.length;i++){
+            if(urlPath[i]==='courses'){
+                courseID = urlPath[i+1];
+                getModuleObj(courseID);
+            }
+        }
+        
+        // get the module object data with Canvas API
+        function getModuleObj(courseID){
+            // ensure that courseID exist before calling function
+            if($.isNumeric(courseID)){
+                $.ajax({
+                    url: "/api/v1/courses/"+courseID+"/modules?include=items&per_page=100"
+                }).then(function(data) {
+                    moduleObj = data;
+                    moduleNo = moduleObj.length;
+                    
+                    for (var i=0;i<moduleNo;i++){
+                        var moduleState;
+                        var moduleID = moduleObj[i]['id'];
+                        var moduleName = moduleObj[i]['name'];
+                        var itemURL = moduleObj[i]['items_url'];
+                        
+                        // check for module state
+                        //   user with teacher or designer role do not have state
+                        if (moduleObj[i]['state']){
+                            moduleState = moduleObj[i]['state'];
+                        }else{
+                            //console.log('teacher view');
+                            moduleState = 'teacher';
+                        }
+                        
+                        
+                        // initiate building of progress bar and module detail shell
+                        buildModuleShell((i+1),i, moduleState, moduleID, courseID, moduleName,moduleObj);
+                    }
+                    
+                    // function to handle the progress bar module button
+                    //   show and hide module detail on click
+                    $('.course-progress-module-container').on('click',function(moduleObj){
+                        $('.course-progress-module-container').removeClass('active');
+                        $(this).addClass('active');
+                        var no = $(this).attr('data-module-no');
+                        
+                        $('.specific-module-box').addClass('fadeOpacity');
+                        setTimeout(function(){
+                            $('.specific-module-box').removeClass('active');
+                            $('.module-'+no+'-box').addClass('active');
+                            $("html, body").stop(true).animate({ scrollTop: $('#user-course-progress-bar').offset().top - 20 }, 300);
+                        },150);
+                        
+                        setTimeout(function(){
+                            $('.module-'+no+'-box').removeClass('fadeOpacity');    
+                        },160);
+                    });
+                });    
+            }
+        }
+        
+        // build the shell for progress bar and module detail
+        function buildModuleShell (moduleDisplayNumber,moduleObjIndex, state,moduleID, courseID, moduleName, moduleObj){
+            var icon,moduleStateClass,moduleDetailStatus,moduleURL,moduleStatus='', widthCSS='';
+            moduleURL = '/courses/'+courseID+'/modules#module_'+moduleID+'';
+            
+            // Module Unlocked 
+            //   if user has teacher, designer role, module will be set as unlocked
+            if (state === 'unlocked' || state === 'teacher'){
+                icon = 'arrow-open-right'; // icon for the module state
+                moduleStateClass = 'course-progress-module-open';
+                moduleDetailStatus ='<a href="'+moduleURL+'" class="module-progress-icon"><i class="icon-'+icon+'"></i></a><a href="'+moduleURL+'" class="module-status">Start Now</a>';
+                widthCSS = 'width:0%;'; // width of the progress bar indicator
+                moduleObj[moduleObjIndex]['progress']=0;
+                
+            // Module Started
+            }else if (state === 'started'){
+                icon = 'arrow-open-right';
+                moduleStateClass = 'course-progress-module-open';
+                moduleDetailStatus ='<h3 class="module-progress-percentage"></h3><p class="module-status">Completed</p>';
+                moduleObj[moduleObjIndex]['progress']=0;
+            
+            // Module Completed
+            }else if (state === 'completed'){
+                icon = 'check';
+                moduleStateClass = 'course-progress-module-open';
+                moduleDetailStatus ='<span class="module-progress-icon"><i class="icon-'+icon+'"></i></span><p class="module-status">Completed</p>';
+                widthCSS = 'width:100%;'; // width of the progress bar indicator
+                moduleObj[moduleObjIndex]['progress']=100;
+                
+            // Module Locked
+            }else if (state === 'locked'){
+                icon = 'lock'
+                moduleStateClass = 'course-progress-module-locked';
+                moduleDetailStatus ='<span class="module-progress-icon"><i class="icon-'+icon+'"></i></span><p class="module-status">Locked</p>';
+                widthCSS = 'width:0%;'; // width of the progress bar indicator
+                moduleStatus=' item-locked'; // class to reduce opacity of locked item
+                moduleObj[moduleObjIndex]['progress']=0;
+            }
+            
+            // progress bar shell
+            $('.course-progress-container').append('<div class="course-progress-module-container course-progress-module-'+moduleDisplayNumber+' '+moduleStateClass+'" data-module-no="'+moduleDisplayNumber+'"><div class="module-progress-status" style="'+widthCSS+'"></div><div class="course-progress-module-title-wrapper"><p>Module '+moduleDisplayNumber+'</p><i class="icon-'+icon+'"></i></div><a></a></div>');
+            
+            // module detail shell
+            $('.module-item-container').append('<div class="specific-module-box module-'+moduleDisplayNumber+'-box fadeOpacity"><div class="specific-module-details"><div class="module-container"><div class="module-details"><h3 class="specific-module-name"><a href="'+moduleURL+'">'+moduleName+'</a></h3><h4 class="specific-module-prerequisite"></h4><ul class="module-prerequisite-list"></ul></div><div class="module-status">'+moduleDetailStatus+'</div></div><div class="item-container'+moduleStatus+'"></div></div></div>');
+            
+            // add items into module detail 
+            addItemsIntoModuleBox(moduleObj, moduleObjIndex);
+            
+            // add prerequisite if the module progress have been determined
+            if(moduleObj[moduleObjIndex]['prerequisite_module_ids'].length >0 && state !== 'started'){
+                var preIdObj = moduleObj[moduleObjIndex]['prerequisite_module_ids'];
+                addPrerequisite(moduleObj,moduleObjIndex,preIdObj);
+            }
+            
+            // calculate the total course progress at the end of the iteration
+            // but if the last module has a 'started' state, then calculate that module first
+            if(moduleObjIndex === moduleObj.length-1 && state !== 'started'){
+                calcTotalCourseProgress(moduleObj);
+            
+            // calculate the progress of the started module    
+            }else if (state === 'started'){
+                calcStartedModuleProgress(moduleObj, moduleObjIndex); 
+            }
+            
+            
+        }
+        
+        // add items into module detail 
+        function addItemsIntoModuleBox(moduleObj, i){
+            var itemObj = moduleObj[i]['items'];
+            var status = moduleObj[i]['state'];
+            for(var k=0;k<itemObj.length;k++){
+                var typeIcon, statusIcon,itemStatus,itemTypeStatusClass;
+                
+                // get the item type to determine the icon to insert
+                if(itemObj[k]['type'] === 'Page'){
+                    typeIcon = 'document';
+                }else if(itemObj[k]['type'] === 'Assignment'){
+                    typeIcon = 'assignment';
+                }else if(itemObj[k]['type'] === 'Quiz'){
+                    typeIcon = 'quiz';
+                }else if(itemObj[k]['type'] === 'Discussion'){
+                    typeIcon = 'discussion';
+                }else if(itemObj[k]['type'] === 'ExternalUrl' || itemObj[k]['type'] ==='ExternalTool'){
+                    typeIcon = 'link';
+                }else if(itemObj[k]['type'] === 'File'){
+                    typeIcon = 'download';
+                }
+                
+                // check if item has 'completion_requirement' and 'completed' data
+                //   only item with requirements has 'completion_requirement' data
+                //   only user with student role includes 'completed' data
+                if (itemObj[k]['completion_requirement']){
+                    if(itemObj[k]['completion_requirement']['completed']){
+                        statusIcon='check';
+                        itemStatus = 'completed';
+                        itemTypeStatusClass = ' item-completed';
+                    }else{
+                        statusIcon='empty';
+                        itemStatus = '';
+                        itemTypeStatusClass = '';
+                    }
+                }else{
+                    statusIcon='empty';
+                    itemStatus = '';
+                    itemTypeStatusClass = '';
+                }
+                
+                var itemLink = itemObj[k]['html_url'];
+                var pageTitle = itemObj[k]['title'];
+                var itemHTML;
+                
+                // if module is locked, item cannot be linked to the respective pages
+                // remove <a>
+                if(status === 'locked'){
+                    itemHTML = '<div class="specific-item-details"><div class="specific-item-type-icon"><i class="icon-'+typeIcon+'"></i></div><div class="specific-item-name">'+pageTitle+'</div><div class="specific-item-status-icon"><i class="icon-'+statusIcon+' '+itemStatus+'"></i></div></div>';
+                    
+                // if module NOT locked, item can be clicked to lead users to the respective item page
+                // added <a href="link/to/item">    
+                }else{
+                    itemHTML = '<div class="specific-item-details"><div class="specific-item-type-icon'+itemTypeStatusClass+'"><i class="icon-'+typeIcon+'"></i></div><div class="specific-item-name"><a href="'+itemLink+'">'+pageTitle+'</a></div><div class="specific-item-status-icon"><i class="icon-'+statusIcon+' '+itemStatus+'"></i></div></div>';    
+                }
+
+                // insert item into the item container
+                $('.module-'+(i+1)+'-box .item-container').append(itemHTML);
+                
+            }
+        }
+        
+        // calculate progress of started module
+        function calcStartedModuleProgress(moduleObj, moduleObjIndex){
+            var itemObj = moduleObj[moduleObjIndex]['items'];
+            var itemCompletedCount=0;
+            var totalItem =itemObj.length;
+            
+            // calculate number of item completed
+            for (var i=0;i<totalItem;i++){
+                // check if item has 'completion_requirement' and 'completed' data
+                //   only item with requirements has 'completion_requirement' data
+                //   only user with student role includes 'completed' data
+                if (itemObj[i]['completion_requirement']){
+                    if (itemObj[i]['completion_requirement']['completed']){
+                        itemCompletedCount +=1;
+                    }
+                }
+            }
+            
+            // convert into percentage
+            var moduleProgress = ((itemCompletedCount/totalItem)*100).toFixed(1);
+            
+            // insert module progress to progress bar and module detail
+            $('.course-progress-module-'+(moduleObjIndex+1)+' .module-progress-status').css('width', moduleProgress+'%');
+            $('.module-'+(moduleObjIndex+1)+'-box .module-progress-percentage').text(moduleProgress +'%');  
+            
+            // record progress to module obj
+            moduleObj[moduleObjIndex]['progress']=moduleProgress;
+            
+            // add prerequisite to module detail
+            if(moduleObj[moduleObjIndex]['prerequisite_module_ids'].length >0){
+                var preIdObj = moduleObj[moduleObjIndex]['prerequisite_module_ids'];
+                addPrerequisite(moduleObj,moduleObjIndex,preIdObj);
+            }
+            
+            // calculate total course progress if this is the last module
+            if (moduleObjIndex === (moduleObj.length-1)){
+                calcTotalCourseProgress(moduleObj);
+            }
+        }
+        
+        // add prerequisite module with progress to module details 
+        function addPrerequisite(moduleObj,moduleObjIndex,preIdObj){
+            var state, preMessage;
+            
+            // check if state exist
+            if (moduleObj[moduleObjIndex]['state']){
+                state = moduleObj[moduleObjIndex]['state'];
+            }
+            
+            // customise message depending on state of the selected module
+            if(state === 'locked'){
+                preMessage = 'Complete prerequisite(s) below to unlock this module.';
+            }else {
+                preMessage = 'Prerequisite(s) completed.';
+            }
+            
+            // insert message into module detail
+            $('.module-'+(moduleObjIndex+1)+'-box .specific-module-prerequisite').text(preMessage);
+            
+            // determine the prerequisite module name, progress and link
+            for (var j=0;j<preIdObj.length;j++){
+                var preID = preIdObj[j];
+
+                for (var k=0;k<moduleObj.length;k++){
+                    if (moduleObj[k]['id'] === preIdObj[j]){
+                        var preProgress = moduleObj[k]['progress'];
+                        var preName = moduleObj[k]['name'];
+                        var preLink = moduleObj[k]['html_url'];
+                        var preHTML, thisState;
+                        
+                        if(moduleObj[k]['state']){
+                            thisState = moduleObj[k]['state'];
+                        }else {
+                            thisState = 'teacher';
+                        }
+                        
+                        // If prerequisite module is locked, remove link <a>
+                        if(thisState==='locked'){
+                            preHTML = '<li class="locked">'+preName+' (Module locked)</li>';
+                        
+                        // Add link to prerequisite module    
+                        }else if(thisState === 'teacher') {
+                            preHTML = '<li><a href="'+preLink+'">'+preName+'</a></li>';
+                            
+                        // Add link to prerequisite module     
+                        }else{
+                            preHTML = '<li><a href="'+preLink+'">'+preName+' ('+preProgress+'% completed)</a></li>';
+                        }
+                        
+                        // Insert prerequisite module into module detail
+                        $('.module-'+(moduleObjIndex+1)+'-box .module-prerequisite-list').append(preHTML);
+                    }
+                }
+            }
+        }
+        
+        // calculate the total course progress
+        function calcTotalCourseProgress(moduleObj){
+            var moduleBoxNumber = moduleObj.length;
+            var moduleProgressSum=0;
+            
+            // calculate sum of all module progress
+            for (var i=0;i<moduleBoxNumber;i++){
+                var moduleProgress = parseFloat(moduleObj[i]['progress']);
+                moduleProgressSum +=moduleProgress;
+            }
+            
+            // convert to percentage
+            var totalCourseProgress = (moduleProgressSum/moduleBoxNumber);
+            
+            // insert into progress bar
+            $('#course-progress-percentage').text(totalCourseProgress.toFixed(1)+'%');
+            
+            //console.log(moduleObj)
+        }
+
+    } else
+    // run this function if id exist
+    if ($('#user-course-progress-bar').length){
+        // get url path
+        var urlPath = window.location.pathname.split('/');
+        var courseID, moduleNo,moduleObj, isStudent;
+        
+        // get course id from url path 
+        for (var i=0;i<urlPath.length;i++){
+            if(urlPath[i]==='courses'){
+                courseID = urlPath[i+1];
+                getModuleObj(courseID);
+            }
+        }
+        
+        // get the module object data with Canvas API
+        function getModuleObj(courseID){
+            // ensure that courseID exist before calling function
+            if($.isNumeric(courseID)){
+                $.ajax({
+                    url: "/api/v1/courses/"+courseID+"/modules?include=items&per_page=50"
+                }).then(function(data) {
+                    moduleObj = data;
+                    moduleNo = moduleObj.length;
+                    
+                    for (var i=0;i<moduleNo;i++){
+                        var moduleState;
+                        var moduleID = moduleObj[i]['id'];
+                        var moduleName = moduleObj[i]['name'];
+                        var itemURL = moduleObj[i]['items_url'];
+                        
+                        // check for module state
+                        //   user with teacher or designer role do not have state
+                        if (moduleObj[i]['state']){
+                            moduleState = moduleObj[i]['state'];
+                        }else{
+                            //console.log('teacher view');
+                            moduleState = 'teacher';
+                        }
+                        
+                        // initiate building of progress bar and module detail shell
+                        buildModuleShell((i+1),i, moduleState, moduleID, courseID, moduleName,moduleObj);
+                    }
+                    
+                    // function to handle the progress bar module button
+                    // show and hide module detail on click
+                    $('.course-progress-module-container').on('click',function(moduleObj){
+                        $('.course-progress-module-container').removeClass('active');
+                        $(this).addClass('active');
+                        var no = $(this).attr('data-module-no');
+                        
+                        $('.specific-module-box').addClass('fadeOpacity');
+                        setTimeout(function(){
+                            $('.specific-module-box').removeClass('active');
+                            $('.module-'+no+'-box').addClass('active');
+                            $("html, body").stop(true).animate({ scrollTop: $('#user-course-progress-bar').offset().top - 20 }, 300);
+                        },150);
+                        
+                        setTimeout(function(){
+                            $('.module-'+no+'-box').removeClass('fadeOpacity');    
+                        },160);
+                    });
+                });    
+            }
+        }
+        
+        // build the shell for progress bar and module detail
+        function buildModuleShell(moduleDisplayNumber,moduleObjIndex, state,moduleID, courseID, moduleName, moduleObj){
+            var icon,moduleStateClass,moduleDetailStatus,moduleURL,moduleStatus='', widthCSS='';
+            moduleURL = '/courses/'+courseID+'/modules#module_'+moduleID+'';
+            
+            // Module Unlocked 
+            // if user has teacher, designer role, module will be set as unlocked
+            if (state === 'unlocked' || state === 'teacher'){
+                icon = 'arrow-open-right'; // icon for the module state
+                moduleStateClass = 'course-progress-module-open';
+                moduleDetailStatus ='<a href="'+moduleURL+'" class="module-progress-icon"><i class="icon-'+icon+'"></i></a><a href="'+moduleURL+'" class="module-status">Start Now</a>';
+                widthCSS = 'width:0%;'; // width of the progress bar indicator
+                moduleObj[moduleObjIndex]['progress']=0;
+                
+            // Module Started
+            }else if (state === 'started'){
+                icon = 'arrow-open-right';
+                moduleStateClass = 'course-progress-module-open';
+                moduleDetailStatus ='<h3 class="module-progress-percentage"></h3><p class="module-status">Completed</p>';
+                moduleObj[moduleObjIndex]['progress']=0;
+            
+            // Module Completed
+            }else if (state === 'completed'){
+                icon = 'check';
+                moduleStateClass = 'course-progress-module-open';
+                moduleDetailStatus ='<span class="module-progress-icon"><i class="icon-'+icon+'"></i></span><p class="module-status">Completed</p>';
+                widthCSS = 'width:100%;'; // width of the progress bar indicator
+                moduleObj[moduleObjIndex]['progress']=100;
+                
+            // Module Locked
+            }else if (state === 'locked'){
+                icon = 'lock'
+                moduleStateClass = 'course-progress-module-locked';
+                moduleDetailStatus ='<span class="module-progress-icon"><i class="icon-'+icon+'"></i></span><p class="module-status">Locked</p>';
+                widthCSS = 'width:0%;'; // width of the progress bar indicator
+                moduleStatus=' item-locked'; // class to reduce opacity of locked item
+                moduleObj[moduleObjIndex]['progress']=0;
+            }
+            
+            // progress bar shell
+            // first module (Start here)
+            if (moduleObjIndex === 0){
+                $('.course-progress-container').append('<div class="course-progress-module-container course-progress-module-'+moduleObjIndex+' '+moduleStateClass+'" data-module-no="'+moduleObjIndex+'"><div class="module-progress-status" style="'+widthCSS+'"></div><div class="course-progress-module-title-wrapper"><p>Start here</p><i class="icon-'+icon+'"></i></div><a></a></div>');
+            // last module (Congratulaions!)    
+            }else if (moduleObjIndex === (moduleObj.length)-1){
+                $('.course-progress-container').append('<div class="course-progress-module-container course-progress-module-'+moduleObjIndex+' '+moduleStateClass+'" data-module-no="'+moduleObjIndex+'"><div class="module-progress-status" style="'+widthCSS+'"></div><div class="course-progress-module-title-wrapper"><p>Congratulations!</p><i class="icon-'+icon+'"></i></div><a></a></div>');
+            // other module (Module No)
+            }else {
+                $('.course-progress-container').append('<div class="course-progress-module-container course-progress-module-'+moduleObjIndex+' '+moduleStateClass+'" data-module-no="'+moduleObjIndex+'"><div class="module-progress-status" style="'+widthCSS+'"></div><div class="course-progress-module-title-wrapper"><p>Module '+moduleObjIndex+'</p><i class="icon-'+icon+'"></i></div><a></a></div>'); 
+            }
+            
+            // module detail shell
+            $('.module-item-container').append('<div class="specific-module-box module-'+moduleObjIndex+'-box fadeOpacity"><div class="specific-module-details"><div class="module-container"><div class="module-details"><h3 class="specific-module-name"><a href="'+moduleURL+'">'+moduleName+'</a></h3><h4 class="specific-module-prerequisite"></h4><ul class="module-prerequisite-list"></ul></div><div class="module-status">'+moduleDetailStatus+'</div></div><div class="item-container'+moduleStatus+'"></div></div></div>');
+            
+            // add items into module detail 
+            addItemsIntoModuleBox(moduleObj, moduleObjIndex);
+            
+            // add prerequisite if the module progress have been determined
+            if(moduleObj[moduleObjIndex]['prerequisite_module_ids'].length >0 && state !== 'started'){
+                var preIdObj = moduleObj[moduleObjIndex]['prerequisite_module_ids'];
+                addPrerequisite(moduleObj,moduleObjIndex,preIdObj);
+            }
+            
+            // calculate the total course progress at the end of the iteration
+            // but if the last module has a 'started' state, then calculate that module first
+            if(moduleObjIndex === moduleObj.length-1 && state !== 'started'){
+                calcTotalCourseProgress(moduleObj);
+            
+            // calculate the progress of the started module    
+            }else if (state === 'started'){
+                calcStartedModuleProgress(moduleObj, moduleObjIndex); 
+            }
+            
+            
+        }
+        
+        // add items into module detail 
+        function addItemsIntoModuleBox(moduleObj, i){
+            var itemObj = moduleObj[i]['items'];
+            var status = moduleObj[i]['state'];
+            for(var k=0;k<itemObj.length;k++){
+                var typeIcon, statusIcon,itemStatus,itemTypeStatusClass;
+                
+                // get the item type to determine the icon to insert
+                if(itemObj[k]['type'] === 'Page'){
+                    typeIcon = 'document';
+                }else if(itemObj[k]['type'] === 'Assignment'){
+                    typeIcon = 'assignment';
+                }else if(itemObj[k]['type'] === 'Quiz'){
+                    typeIcon = 'quiz';
+                }else if(itemObj[k]['type'] === 'Discussion'){
+                    typeIcon = 'discussion';
+                }else if(itemObj[k]['type'] === 'ExternalUrl' || itemObj[k]['type'] ==='ExternalTool'){
+                    typeIcon = 'link';
+                }else if(itemObj[k]['type'] === 'File'){
+                    typeIcon = 'download';
+                }
+                
+                // check if item has 'completion_requirement' and 'completed' data
+                //   only item with requirements has 'completion_requirement' data
+                //   only user with student role includes 'completed' data
+                if (itemObj[k]['completion_requirement']){
+                    if(itemObj[k]['completion_requirement']['completed']){
+                        statusIcon='check';
+                        itemStatus = 'completed';
+                        itemTypeStatusClass = ' item-completed';
+                    }else{
+                        statusIcon='empty';
+                        itemStatus = '';
+                        itemTypeStatusClass='';
+                    }
+                }else{
+                    statusIcon='empty';
+                    itemStatus = '';
+                    itemTypeStatusClass='';
+                }
+                
+                var itemLink = itemObj[k]['html_url'];
+                var pageTitle = itemObj[k]['title'];
+                var itemHTML;
+                
+                // if module is locked, item cannot be linked to the respective pages
+                // remove <a>
+                if(status === 'locked'){
+                    itemHTML = '<div class="specific-item-details"><div class="specific-item-type-icon"><i class="icon-'+typeIcon+'"></i></div><div class="specific-item-name">'+pageTitle+'</div><div class="specific-item-status-icon"><i class="icon-'+statusIcon+' '+itemStatus+'"></i></div></div>';
+                    
+                // if module NOT locked, item can be clicked to lead users to the respective item page
+                // added <a href="link/to/item">    
+                }else{
+                    itemHTML = '<div class="specific-item-details"><div class="specific-item-type-icon'+itemTypeStatusClass+'"><i class="icon-'+typeIcon+'"></i></div><div class="specific-item-name"><a href="'+itemLink+'">'+pageTitle+'</a></div><div class="specific-item-status-icon"><i class="icon-'+statusIcon+' '+itemStatus+'"></i></div></div>';    
+                }
+
+                // insert item into the item container
+                $('.module-'+(i)+'-box .item-container').append(itemHTML);
+                
+            }
+        }
+        
+        // calculate progress of started module
+        function calcStartedModuleProgress(moduleObj, moduleObjIndex){
+            var itemObj = moduleObj[moduleObjIndex]['items'];
+            var itemCompletedCount=0;
+            var totalItem =itemObj.length;
+            
+            // calculate number of item completed
+            for (var i=0;i<totalItem;i++){
+                // check if item has 'completion_requirement' and 'completed' data
+                //   only item with requirements has 'completion_requirement' data
+                //   only user with student role includes 'completed' data
+                if (itemObj[i]['completion_requirement']){
+                    if (itemObj[i]['completion_requirement']['completed']){
+                        itemCompletedCount +=1;
+                    }
+                }
+            }
+            
+            // convert into percentage
+            var moduleProgress = ((itemCompletedCount/totalItem)*100).toFixed(1);
+            
+            // insert module progress to progress bar and module detail
+            $('.course-progress-module-'+(moduleObjIndex)+' .module-progress-status').css('width', moduleProgress+'%');
+            $('.module-'+(moduleObjIndex)+'-box .module-progress-percentage').text(moduleProgress +'%');  
+            
+            // record progress to module obj
+            moduleObj[moduleObjIndex]['progress']=moduleProgress;
+            
+            // add prerequisite to module detail
+            if(moduleObj[moduleObjIndex]['prerequisite_module_ids'].length >0){
+                var preIdObj = moduleObj[moduleObjIndex]['prerequisite_module_ids'];
+                addPrerequisite(moduleObj,moduleObjIndex,preIdObj);
+            }
+            
+            // calculate total course progress if this is the last module
+            if (moduleObjIndex === (moduleObj.length-1)){
+                calcTotalCourseProgress(moduleObj);
+            }
+        }
+        
+        // add prerequisite module with progress to module details 
+        function addPrerequisite(moduleObj,moduleObjIndex,preIdObj){
+            var state, preMessage;
+            
+            // check if state exist
+            if (moduleObj[moduleObjIndex]['state']){
+                state = moduleObj[moduleObjIndex]['state'];
+            }
+            
+            // customise message depending on state of the selected module
+            if(state === 'locked'){
+                preMessage = 'Complete prerequisite(s) below to unlock this module.';
+            }else {
+                preMessage = 'Prerequisite(s) completed.';
+            }
+            
+            // insert message into module detail
+            $('.module-'+(moduleObjIndex)+'-box .specific-module-prerequisite').text(preMessage);
+            
+            // determine the prerequisite module name, progress and link
+            for (var j=0;j<preIdObj.length;j++){
+                var preID = preIdObj[j];
+
+                for (var k=0;k<moduleObj.length;k++){
+                    if (moduleObj[k]['id'] === preIdObj[j]){
+                        var preProgress = moduleObj[k]['progress'];
+                        var preName = moduleObj[k]['name'];
+                        var preLink = moduleObj[k]['html_url'];
+                        var preHTML, thisState;
+                        
+                        if(moduleObj[k]['state']){
+                            thisState = moduleObj[k]['state'];
+                        }else {
+                            thisState = 'teacher';
+                        }
+                        
+                        // If prerequisite module is locked, remove link <a>
+                        if(thisState==='locked'){
+                            preHTML = '<li class="locked">'+preName+' (Module locked)</li>';
+                        
+                        // Add link to prerequisite module    
+                        }else if(thisState === 'teacher') {
+                            preHTML = '<li><a href="'+preLink+'">'+preName+'</a></li>';
+                            
+                        // Add link to prerequisite module     
+                        }else{
+                            preHTML = '<li><a href="'+preLink+'">'+preName+' ('+preProgress+'% completed)</a></li>';
+                        }
+                        
+                        // Insert prerequisite module into module detail
+                        $('.module-'+(moduleObjIndex)+'-box .module-prerequisite-list').append(preHTML);
+                    }
+                }
+            }
+        }
+        
+        // calculate the total course progress
+        function calcTotalCourseProgress(moduleObj){
+            var moduleBoxNumber = moduleObj.length;
+            var moduleProgressSum=0;
+            
+            // calculate sum of all module progress
+            for (var i=0;i<moduleBoxNumber;i++){
+                var moduleProgress = parseFloat(moduleObj[i]['progress']);
+                moduleProgressSum +=moduleProgress;
+            }
+            
+            // convert to percentage
+            var totalCourseProgress = (moduleProgressSum/moduleBoxNumber);
+            
+            // insert into progress bar
+            $('#course-progress-percentage').text(totalCourseProgress.toFixed(1)+'%');
+            
+            //console.log(moduleObj)
+        }
+    }
+});
